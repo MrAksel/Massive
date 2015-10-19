@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,7 +40,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Natural.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Skeleton.cs" />
+    <Compile Include="VirtualArray.cs" />
+    <Compile Include="VirtualArrayEnumerator.cs" />
+    <Compile Include="VirtualArrayFragment.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Massive\Massive.csproj">
+      <Project>{2938a119-603d-4b97-8a20-26c8bf9497c2}</Project>
+      <Name>Massive</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
