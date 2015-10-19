@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace Massive.IO.Generic
 {
-    class FIFOStream<T>
+    public class FIFOStream<T>
     {
+        private object _locker;
         private LinkedList<T[]> backbuff;
 
         public FIFOStream()
         {
+            _locker = new object();
             backbuff = new LinkedList<T[]>();
         }
 
@@ -32,7 +34,11 @@ namespace Massive.IO.Generic
 
         public long Length
         {
-            get { return backbuff.Sum(b => b.LongLength); }
+            get
+            {
+                lock (_locker)
+                    return backbuff.Sum(b => b.LongLength);
+            }
         }
 
 
@@ -43,20 +49,23 @@ namespace Massive.IO.Generic
 
 
             int c = 0;
-            while (c < count && backbuff.Count > 0)
+            lock (_locker)
             {
-                T[] item = backbuff.First.Value;
-                backbuff.RemoveFirst();
-
-                int copy = Math.Min(item.Length, count - c);
-                Array.Copy(item, 0, buffer, c, copy);
-                c += copy;
-
-                if (item.Length > copy)
+                while (c < count && backbuff.Count > 0)
                 {
-                    T[] rest = new T[item.Length - copy];
-                    Array.Copy(item, copy, rest, 0, rest.Length);
-                    backbuff.AddFirst(rest);
+                    T[] item = backbuff.First.Value;
+                    backbuff.RemoveFirst();
+
+                    int copy = Math.Min(item.Length, count - c);
+                    Array.Copy(item, 0, buffer, c, copy);
+                    c += copy;
+
+                    if (item.Length > copy)
+                    {
+                        T[] rest = new T[item.Length - copy];
+                        Array.Copy(item, copy, rest, 0, rest.Length);
+                        backbuff.AddFirst(rest);
+                    }
                 }
             }
 
@@ -65,33 +74,36 @@ namespace Massive.IO.Generic
 
         public void SetLength(long value)
         {
-            long lgth = Length;
-            if (lgth > value)
+            lock (_locker)
             {
-                long l = 0;
-                LinkedListNode<T[]> node = backbuff.First;
-                while (l < value)
+                long lgth = Length;
+                if (lgth > value)
                 {
-                    if (l + node.Value.LongLength > value)
-                        break;
-                    node = node.Next;
-                    l += node.Value.Length;
-                }
-                T[] buf = node.Value;
-                Array.Resize(ref buf, (int)(value - l));
-                backbuff.AddBefore(node, buf);
+                    long l = 0;
+                    LinkedListNode<T[]> node = backbuff.First;
+                    while (l < value)
+                    {
+                        if (l + node.Value.LongLength > value)
+                            break;
+                        node = node.Next;
+                        l += node.Value.Length;
+                    }
+                    T[] buf = node.Value;
+                    Array.Resize(ref buf, (int)(value - l));
+                    backbuff.AddBefore(node, buf);
 
-                while (node.Next != null)
-                {
-                    node = node.Next;
-                    backbuff.Remove(node.Previous);
+                    while (node.Next != null)
+                    {
+                        node = node.Next;
+                        backbuff.Remove(node.Previous);
+                    }
+                    backbuff.Remove(node);
                 }
-                backbuff.Remove(node);
-            }
-            else
-            {
-                T[] buf = new T[value - lgth];
-                backbuff.AddLast(buf);
+                else
+                {
+                    T[] buf = new T[value - lgth];
+                    backbuff.AddLast(buf);
+                }
             }
         }
 
@@ -102,7 +114,8 @@ namespace Massive.IO.Generic
 
             T[] buf = new T[count];
             Array.Copy(buffer, offset, buf, 0, count);
-            backbuff.AddLast(buf);
+            lock (_locker)
+                backbuff.AddLast(buf);
         }
     }
 }

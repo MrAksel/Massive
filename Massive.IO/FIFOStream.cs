@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 
 namespace Massive.IO
 {
-    class FIFOStream : Stream
+    public class FIFOStream : Stream
     {
+        private object _locker;
+
         private LinkedList<byte[]> backbuff;
 
         public FIFOStream()
         {
+            _locker = new object();
             backbuff = new LinkedList<byte[]>();
         }
 
@@ -38,7 +41,10 @@ namespace Massive.IO
 
         public override long Length
         {
-            get { return backbuff.Sum(b => b.LongLength); }
+            get
+            {
+                lock (_locker) return backbuff.Sum(b => b.LongLength);
+            }
         }
 
         public override long Position
@@ -60,20 +66,23 @@ namespace Massive.IO
 
 
             int c = 0;
-            while (c < count && backbuff.Count > 0)
+            lock (_locker)
             {
-                byte[] item = backbuff.First.Value;
-                backbuff.RemoveFirst();
-
-                int copy = Math.Min(item.Length, count - c);
-                Array.Copy(item, 0, buffer, c, copy);
-                c += copy;
-
-                if (item.Length > copy)
+                while (c < count && backbuff.Count > 0)
                 {
-                    byte[] rest = new byte[item.Length - copy];
-                    Array.Copy(item, copy, rest, 0, rest.Length);
-                    backbuff.AddFirst(rest);
+                    byte[] item = backbuff.First.Value;
+                    backbuff.RemoveFirst();
+
+                    int copy = Math.Min(item.Length, count - c);
+                    Array.Copy(item, 0, buffer, c, copy);
+                    c += copy;
+
+                    if (item.Length > copy)
+                    {
+                        byte[] rest = new byte[item.Length - copy];
+                        Array.Copy(item, copy, rest, 0, rest.Length);
+                        backbuff.AddFirst(rest);
+                    }
                 }
             }
 
@@ -87,33 +96,36 @@ namespace Massive.IO
 
         public override void SetLength(long value)
         {
-            long lgth = Length;
-            if (lgth > value)
+            lock (_locker)
             {
-                long l = 0;
-                LinkedListNode<byte[]> node = backbuff.First;
-                while (l < value)
+                long lgth = Length;
+                if (lgth > value)
                 {
-                    if (l + node.Value.LongLength > value)
-                        break;
-                    node = node.Next;
-                    l += node.Value.Length;
-                }
-                byte[] buf = node.Value;
-                Array.Resize(ref buf, (int)(value - l));
-                backbuff.AddBefore(node, buf);
+                    long l = 0;
+                    LinkedListNode<byte[]> node = backbuff.First;
+                    while (l < value)
+                    {
+                        if (l + node.Value.LongLength > value)
+                            break;
+                        node = node.Next;
+                        l += node.Value.Length;
+                    }
+                    byte[] buf = node.Value;
+                    Array.Resize(ref buf, (int)(value - l));
+                    backbuff.AddBefore(node, buf);
 
-                while (node.Next != null)
-                {
-                    node = node.Next;
-                    backbuff.Remove(node.Previous);
+                    while (node.Next != null)
+                    {
+                        node = node.Next;
+                        backbuff.Remove(node.Previous);
+                    }
+                    backbuff.Remove(node);
                 }
-                backbuff.Remove(node);
-            }
-            else
-            {
-                byte[] buf = new byte[value - lgth];
-                backbuff.AddLast(buf);
+                else
+                {
+                    byte[] buf = new byte[value - lgth];
+                    backbuff.AddLast(buf);
+                }
             }
         }
 
@@ -124,7 +136,8 @@ namespace Massive.IO
 
             byte[] buf = new byte[count];
             Array.Copy(buffer, offset, buf, 0, count);
-            backbuff.AddLast(buf);
+            lock (_locker)
+                backbuff.AddLast(buf);
         }
     }
 }
