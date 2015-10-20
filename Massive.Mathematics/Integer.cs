@@ -21,6 +21,15 @@ namespace Massive.Mathematics
             magnitude = 0;
         }
 
+        public Integer(Natural x)
+        {
+            sign = 0;
+            magnitude = x;
+
+            if (magnitude > 0)
+                sign = 1;
+        }
+        
         public Integer(int value)
             : this()
         {
@@ -151,7 +160,7 @@ namespace Massive.Mathematics
         {
             if (y.sign == 0)
                 return x;
-           
+
             else if (x.sign == 0)
             {
                 x.sign = y.sign;
@@ -276,15 +285,6 @@ namespace Massive.Mathematics
             return (x.sign == y.sign && x.magnitude == y.magnitude);
         }
 
-        public static bool operator ==(Integer x, int y)
-        {
-            return (x.sign == Math.Sign(y) && x.magnitude == y);
-        }
-        public static bool operator ==(Integer x, long y)
-        {
-            return (x.sign == Math.Sign(y) && x.magnitude == y);
-        }
-
         [CLSCompliant(false)]
         public static bool operator ==(Integer x, uint y)
         {
@@ -303,14 +303,6 @@ namespace Massive.Mathematics
         public static bool operator !=(Integer x, Integer y)
         {
             return (x.sign != y.sign || x.magnitude != y.magnitude);
-        }
-        public static bool operator !=(Integer x, int y)
-        {
-            return (x.sign != Math.Sign(y) || x.magnitude != (Natural)y);
-        }
-        public static bool operator !=(Integer x, long y)
-        {
-            return (x.sign != Math.Sign(y) || x.magnitude != (Natural)y);
         }
 
         [CLSCompliant(false)]
@@ -339,30 +331,6 @@ namespace Massive.Mathematics
 
             return x.magnitude < y.magnitude;
         }
-        public static bool operator <(Integer x, int y)
-        {
-            int ys = Math.Sign(y);
-            if (x.sign < ys)
-                return true;
-            if (ys < x.sign)
-                return false;
-
-            if (x.sign == -1) return x.magnitude > (Natural)y;
-
-            return x.magnitude < (Natural)y;
-        }
-        public static bool operator <(Integer x, long y)
-        {
-            int ys = Math.Sign(y);
-            if (x.sign < ys)
-                return true;
-            if (ys < x.sign)
-                return false;
-
-            if (x.sign == -1) return x.magnitude > (Natural)y;
-
-            return x.magnitude < (Natural)y;
-        }
 
         [CLSCompliant(false)]
         public static bool operator <(Integer x, uint y)
@@ -387,26 +355,30 @@ namespace Massive.Mathematics
 
         public static bool operator <=(Integer x, Integer y)
         {
-            throw new NotImplementedException();
-        }
-        public static bool operator <=(Integer x, int y)
-        {
-            throw new NotImplementedException();
-        }
-        public static bool operator <=(Integer x, long y)
-        {
-            throw new NotImplementedException();
+            if (x.sign < y.sign)
+                return true;
+
+            if (x.sign > y.sign)
+                return false;
+
+            return x.magnitude < y.magnitude;
         }
 
         [CLSCompliant(false)]
         public static bool operator <=(Integer x, uint y)
         {
-            throw new NotImplementedException();
+            if (x.sign == -1)
+                return true;
+
+            return x.magnitude < (Natural)y;
         }
         [CLSCompliant(false)]
         public static bool operator <=(Integer x, ulong y)
         {
-            throw new NotImplementedException();
+            if (x.sign == -1)
+                return true;
+
+            return x.magnitude < (Natural)y;
         }
 
         #endregion
@@ -415,51 +387,71 @@ namespace Massive.Mathematics
 
         public static bool operator >(Integer x, Integer y)
         {
-            throw new NotImplementedException();
-        }
-        public static bool operator >(Integer x, int y)
-        {
-            throw new NotImplementedException();
-        }
-        public static bool operator >(Integer x, long y)
-        {
-            throw new NotImplementedException();
+            if (x.sign > y.sign)
+                return true;
+
+            if (x.sign < y.sign)
+                return false;
+
+            return x.magnitude > y.magnitude;
         }
 
         [CLSCompliant(false)]
         public static bool operator >(Integer x, uint y)
         {
-            throw new NotImplementedException();
+            if (x.sign > y) // if x is positive and y is 0
+                return true;
+
+            if (x.sign == -1) // y can't be negative
+                return false;
+
+            return x.magnitude > (Natural)y;
         }
         [CLSCompliant(false)]
         public static bool operator >(Integer x, ulong y)
         {
-            throw new NotImplementedException();
+            if (y == 0 && x.sign == 1) // if x is positive and y is 0
+                return true;
+
+            if (x.sign == -1) // y can't be negative
+                return false;
+
+            return x.magnitude > (Natural)y;
         }
 
 
         public static bool operator >=(Integer x, Integer y)
         {
-            throw new NotImplementedException();
-        }
-        public static bool operator >=(Integer x, int y)
-        {
-            throw new NotImplementedException();
-        }
-        public static bool operator >=(Integer x, long y)
-        {
-            throw new NotImplementedException();
+            if (x.sign > y.sign)
+                return true;
+
+            if (x.sign < y.sign)
+                return false;
+
+            return x.magnitude >= y.magnitude;
         }
 
         [CLSCompliant(false)]
         public static bool operator >=(Integer x, uint y)
         {
-            throw new NotImplementedException();
+            if (y == 0 && x.sign == 1)
+                return true;
+
+            if (x.sign == -1)
+                return false;
+
+            return x.magnitude == (Natural)y;
         }
         [CLSCompliant(false)]
         public static bool operator >=(Integer x, ulong y)
         {
-            throw new NotImplementedException();
+            if (y == 0 && x.sign == 1)
+                return true;
+
+            if (x.sign == -1)
+                return false;
+
+            return x.magnitude == (Natural)y;
         }
 
         #endregion
@@ -468,48 +460,43 @@ namespace Massive.Mathematics
 
         #region Implicit casting
 
+        public static implicit operator Integer(Natural x)
+        {
+            return new Integer(x);
+        }
+
         public static implicit operator Integer(byte x)
         {
-            throw new NotImplementedException();
+            return new Integer((int)x);
         }
 
         public static implicit operator Integer(short x)
         {
-            throw new NotImplementedException();
+            return new Integer((int)x);
         }
 
         public static implicit operator Integer(int x)
         {
-            throw new NotImplementedException();
+            return new Integer(x);
         }
 
         public static implicit operator Integer(long x)
         {
-            throw new NotImplementedException();
+            return new Integer(x);
         }
 
         #endregion
 
         #region Explicit casting
 
-        public static explicit operator byte (Integer x)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static explicit operator short (Integer x)
-        {
-            throw new NotImplementedException();
-        }
-
         public static explicit operator int (Integer x)
         {
-            throw new NotImplementedException();
+            return (int)x.magnitude * x.sign;
         }
 
         public static explicit operator long (Integer x)
         {
-            throw new NotImplementedException();
+            return (long)x.magnitude * x.sign;
         }
 
         #endregion
@@ -518,22 +505,30 @@ namespace Massive.Mathematics
 
         public override bool Equals(object obj)
         {
-            throw new NotImplementedException();
+            if (obj is Integer)
+            {
+                return this == (Integer)obj;
+            }
+            return false;
         }
 
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return magnitude.GetHashCode() ^ sign.GetHashCode();
         }
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return ToString(10);
         }
 
         public string ToString(int radix)
         {
-            throw new NotImplementedException();
+            string s = magnitude.ToString(radix);
+            if (sign == -1)
+                return "-" + s;
+            else
+                return s;
         }
 
         #endregion
@@ -542,7 +537,10 @@ namespace Massive.Mathematics
 
         public Integer Clone()
         {
-            throw new NotImplementedException();
+            Integer n = new Integer(magnitude.Clone());
+            n.sign = this.sign;
+
+            return n;
         }
 
         #endregion
