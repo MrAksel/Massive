@@ -54,11 +54,11 @@ namespace Massive.Mathematics
         {
             get
             {
-                return data[index / sub_array_size][index % sub_array_size];
+                return Get(index);
             }
             set
             {
-                data[index / sub_array_size][index % sub_array_size] = value;
+                Set(index, value);
             }
         }
 

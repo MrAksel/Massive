@@ -898,8 +898,7 @@ namespace Massive.Mathematics
             digits = newVal.digits.Clone();
             lengths = newVal.lengths;
             minDigits = newVal.minDigits;
-
-            NotifyUpdate();
+            usedDigits = newVal.usedDigits;
 
             return this;
         }
@@ -914,16 +913,17 @@ namespace Massive.Mathematics
             VirtualArray<Digit> newdigits = newVal.digits;
             Stack<long> lll = newVal.lengths;
             long minlll = newVal.minDigits;
+            long usdgt = newVal.usedDigits;
 
             newVal.digits = digits;
             newVal.lengths = lengths;
             newVal.minDigits = minDigits;
+            newVal.usedDigits = usedDigits;
 
             digits = newdigits;
             lengths = lll;
             minDigits = minlll;
-
-            NotifyUpdate();
+            usedDigits = usdgt;
 
             return this;
         }
@@ -945,21 +945,6 @@ namespace Massive.Mathematics
         public byte[] GetLittleEndianByteArray()
         {
             return Helper.ConvertUIntArrayToByteArray(GetLittleEndianUIntArray());
-
-            byte[] b = new byte[usedDigits * 4];
-
-            for (long i = 0; i < usedDigits; i++)
-            {
-                long ai = (usedDigits - 1 - i) * 4;
-                uint u = digits[i];
-
-                b[ai] = (byte)(u & 0x000000FF); u >>= 8;
-                b[ai + 1] = (byte)(u & 0x000000FF); u >>= 8;
-                b[ai + 2] = (byte)(u & 0x000000FF); u >>= 8;
-                b[ai + 3] = (byte)(u & 0x000000FF);
-            }
-
-            return b;
         }
 
         [CLSCompliant(false)]
