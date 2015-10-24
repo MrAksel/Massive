@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
-namespace Massive.Mathematics
+namespace Massive.Mathematics.Numerics
 {
     public class Integer
     {
@@ -541,6 +537,34 @@ namespace Massive.Mathematics
             n.sign = this.sign;
 
             return n;
+        }
+
+        public Integer Clear()
+        {
+            this.magnitude.Clear();
+            this.sign = 0;
+
+            return this;
+        }
+
+        public Integer SetValue(Integer newVal)
+        {
+            this.magnitude.SetValue(newVal.magnitude);
+            this.sign = newVal.sign;
+
+            return this;
+        }
+
+        public Integer Swap(Integer other)
+        {
+            int s = sign;
+
+            this.magnitude.Swap(other.magnitude);
+            this.sign = other.sign;
+
+            other.sign = s;
+
+            return this;
         }
 
         #endregion

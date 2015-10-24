@@ -1,18 +1,21 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Numerics;
+using Massive.Mathematics.Numerics;
+using System.Diagnostics;
 
-namespace Massive.Mathematics.Testing
+namespace Massive.Testing.Mathematics
 {
     [TestClass]
     public class NaturalTests
     {
+        int defnumsize = 1;
         ulong[] samples = new ulong[] { 0, 1, 2, 5, 10, 100000, int.MaxValue, uint.MaxValue - 1, ulong.MaxValue / 2, ulong.MaxValue };
 
         [TestMethod]
         public void AddTest()
         {
-            Natural.DefaultNumberSize = 4;
+            Natural.DefaultNumberSize = defnumsize;
 
             foreach (ulong l in samples)
             {
@@ -46,7 +49,7 @@ namespace Massive.Mathematics.Testing
         [TestMethod]
         public void SubtractTest()
         {
-            Natural.DefaultNumberSize = 4;
+            Natural.DefaultNumberSize = defnumsize;
 
             foreach (ulong l in samples)
             {
@@ -69,7 +72,7 @@ namespace Massive.Mathematics.Testing
         [TestMethod]
         public void MultiplyTest()
         {
-            Natural.DefaultNumberSize = 4;
+            Natural.DefaultNumberSize = defnumsize;
 
             foreach (ulong l in samples)
             {
@@ -81,7 +84,12 @@ namespace Massive.Mathematics.Testing
                     BigInteger bl = new BigInteger(l);
                     BigInteger br = new BigInteger(r);
 
-                    Assert.AreEqual(bl * br, (BigInteger)(ll * rr));
+                    BigInteger bres = bl * br;
+                    BigInteger nres = (BigInteger)(ll * rr);
+
+                    Debug.WriteLine("{0:X} * {1:X} = {2:X} = {3:X}", l, r, bres, nres);
+
+                    Assert.AreEqual(bres, nres);
                 }
             }
 
@@ -101,22 +109,18 @@ namespace Massive.Mathematics.Testing
         [TestMethod]
         public void LargeNumTest()
         {
-            Natural.DefaultNumberSize = 4;
+            Natural.DefaultNumberSize = defnumsize;
 
             int[] powers = { 0, 1, 2, 3, 4, 5 };
-            foreach(ulong l in samples)
+            foreach (ulong l in samples)
             {
                 foreach (int p in powers)
                 {
                     Natural ll = new Natural(l);
                     BigInteger bl = new BigInteger(l);
 
-                    BigInteger rs = (BigInteger)(BigInteger)Natural.Pow(ll, p);
-                    if (BigInteger.Pow(bl, p) != rs)
-                    {
-                        Assert.Fail(string.Format("{0} ^ {1} = {2}", l, p, rs));
-                    }
-                    // Assert.AreEqual(BigInteger.Pow(bl, p), (BigInteger)Natural.Pow(ll, p));
+                    BigInteger rs = (BigInteger)Natural.Pow(ll, p);
+                    Assert.AreEqual(BigInteger.Pow(bl, p), rs);
                 }
             }
         }
@@ -124,7 +128,7 @@ namespace Massive.Mathematics.Testing
         [TestMethod]
         public void DivisionTest()
         {
-            Natural.DefaultNumberSize = 4;
+            Natural.DefaultNumberSize = defnumsize;
 
             foreach (ulong l in samples)
             {
@@ -147,7 +151,7 @@ namespace Massive.Mathematics.Testing
         [TestMethod]
         public void ToStringTest()
         {
-            Natural.DefaultNumberSize = 4;
+            Natural.DefaultNumberSize = defnumsize;
 
             foreach (ulong l in samples)
             {
@@ -163,6 +167,8 @@ namespace Massive.Mathematics.Testing
         [TestMethod]
         public void ConversionTest()
         {
+            Natural.DefaultNumberSize = defnumsize;
+
             foreach (ulong i in samples)
             {
                 for (int pow = 412; pow < 440; pow++)

@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1E87045B-94A6-40AC-B14C-5D21E5089EF6}</ProjectGuid>
+    <ProjectGuid>{A5C00DB2-385A-4829-B3C7-5973C4778792}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Massive.Mathematics.Testing</RootNamespace>
-    <AssemblyName>Massive.Mathematics.Testing</AssemblyName>
+    <RootNamespace>Massive.Testing</RootNamespace>
+    <AssemblyName>Massive.Testing</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -51,7 +51,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="NaturalTests.cs" />
+    <Compile Include="Collections\IndexedArraySegmentTests.cs" />
+    <Compile Include="HelperTests.cs" />
+    <Compile Include="Mathematics.NaturalTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +65,13 @@
       <Project>{7f2bd5e9-4a54-45ba-96e1-acd59c57005a}</Project>
       <Name>Massive.Mathematics</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Massive\Massive.csproj">
+      <Project>{2938a119-603d-4b97-8a20-26c8bf9497c2}</Project>
+      <Name>Massive</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Collections\ArrayExtensionTests.cs" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
