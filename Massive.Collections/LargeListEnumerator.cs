@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Massive.Mathematics
+namespace Massive.Collections
 {
-    internal class VirtualArrayEnumerator<T> : IEnumerator<T>
+    internal class LargeListEnumerator<T> : IEnumerator<T>
     {
-        private VirtualArray<T> virtualArray;
+        private LargeList<T> virtualArray;
 
         private long currentIndex;
 
-        public VirtualArrayEnumerator(VirtualArray<T> virtualArray)
+        public LargeListEnumerator(LargeList<T> virtualArray)
         {
             this.virtualArray = virtualArray;
         }
@@ -42,7 +41,6 @@ namespace Massive.Mathematics
             currentIndex = -1;
         }
         
-
         public void Dispose()
         {
 

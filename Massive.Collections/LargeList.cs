@@ -1,30 +1,27 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Massive.Mathematics
+namespace Massive.Collections
 {
-    public class VirtualArray<T> : IEnumerable<T>
+    public class LargeList<T> : IEnumerable<T>
     {
         private int sub_array_size;
 
         T[][] data;
 
-        protected VirtualArray()
+        protected LargeList()
         {
             data = null;
             sub_array_size = 0;
         }
 
-        public VirtualArray(int sub_length)
+        public LargeList(int sub_length)
             :this(sub_length, 1)
         {
         }
 
-        public VirtualArray(int sub_length, int array_count)
+        public LargeList(int sub_length, int array_count)
         {
             sub_array_size = sub_length;
             data = new T[array_count][];
@@ -32,14 +29,14 @@ namespace Massive.Mathematics
                 data[i] = new T[sub_length];
         }
 
-        public VirtualArray(T[] array, int sub_length)
+        public LargeList(T[] array, int sub_length)
         {
             sub_array_size = sub_length;
             int lng = (array.Length > 0 ? (array.Length - 1) / sub_length + 1 : 0);
             long cIndex = 0;
             data = new T[lng][];
 
-            for (int i = 0; i <lng; i++)
+            for (int i = 0; i < lng; i++)
             {
                 data[i] = new T[sub_length];
 
@@ -58,7 +55,7 @@ namespace Massive.Mathematics
             }
             set
             {
-                Set(index, value);
+                Put(index, value);
             }
         }
 
@@ -81,7 +78,7 @@ namespace Massive.Mathematics
 
         public void Put(long index, T item)
         {
-            if (index >= MaxLength )
+            if (index >= MaxLength)
                 throw new ArgumentOutOfRangeException("index cannot be larger than or equal to MaxLength.");
 
             if (Length < index)
@@ -158,6 +155,17 @@ namespace Massive.Mathematics
             }
         }
 
+
+        public void ShiftLeft(int elements)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ShiftRight(int elements)
+        {
+            throw new NotImplementedException();
+        }
+
         /*
         public long IndexOf(T value)
         {
@@ -175,9 +183,9 @@ namespace Massive.Mathematics
         }
         */
 
-        public VirtualArray<T> Clone()
+        public LargeList<T> Clone()
         {
-            VirtualArray<T> n = new VirtualArray<T>(sub_array_size, data.Length);
+            LargeList<T> n = new LargeList<T>(sub_array_size, data.Length);
             for (int i = 0; i < data.Length; i++)
                 Array.Copy(data[i], n.data[i], sub_array_size);
 
@@ -193,15 +201,35 @@ namespace Massive.Mathematics
             }
         }
 
+        public T[] ToArray()
+        {
+            return ToArray(Length);
+        }
+
+        public T[] ToArray(long length)
+        {
+            T[] a = new T[length];
+            long c = 0;
+            long i = 0;
+            while (c < length)
+            {
+                long m = Math.Min(length - c, sub_array_size);
+                Array.Copy(data[i], a, m);
+                i++;
+                c += m;
+            }
+
+            return a;
+        }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return new VirtualArrayEnumerator<T>(this);
+            return new LargeListEnumerator<T>(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new VirtualArrayEnumerator<T>(this);
+            return new LargeListEnumerator<T>(this);
         }
     }
 }

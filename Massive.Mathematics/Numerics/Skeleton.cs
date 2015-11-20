@@ -28,9 +28,9 @@ using Digit = System.UInt32;
  *  
  */
 
-namespace Massive.Mathematics
+namespace Massive.Mathematics.Numerics
 {
-    public class Skeleton
+    public abstract class Skeleton
     {
         #region Constructors
 

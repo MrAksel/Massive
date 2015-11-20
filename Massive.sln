@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Massive.Mathematics", "Massive.Mathematics\Massive.Mathematics.csproj", "{7F2BD5E9-4A54-45BA-96E1-ACD59C57005A}"
 EndProject
@@ -23,7 +23,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Massive.IO.Net", "Massive.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Massive.Mathematics.Graphing", "Massive.Mathematics.Graphing\Massive.Mathematics.Graphing.csproj", "{DDA9EF6C-49BF-47B1-982A-C57641EFA324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Massive.Mathematics.Testing", "Massive.Mathematics.Testing\Massive.Mathematics.Testing.csproj", "{1E87045B-94A6-40AC-B14C-5D21E5089EF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", "{A1E4C69C-B140-4FA1-970C-31C046DA770F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Massive.Collections", "Massive.Collections\Massive.Collections.csproj", "{6D91FF07-846C-4E92-8E34-E8038F587A2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Massive.Testing", "Massive.Testing\Massive.Testing.csproj", "{A5C00DB2-385A-4829-B3C7-5973C4778792}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,10 +75,18 @@ Global
 		{DDA9EF6C-49BF-47B1-982A-C57641EFA324}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDA9EF6C-49BF-47B1-982A-C57641EFA324}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDA9EF6C-49BF-47B1-982A-C57641EFA324}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E87045B-94A6-40AC-B14C-5D21E5089EF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E87045B-94A6-40AC-B14C-5D21E5089EF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E87045B-94A6-40AC-B14C-5D21E5089EF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E87045B-94A6-40AC-B14C-5D21E5089EF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1E4C69C-B140-4FA1-970C-31C046DA770F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1E4C69C-B140-4FA1-970C-31C046DA770F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1E4C69C-B140-4FA1-970C-31C046DA770F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1E4C69C-B140-4FA1-970C-31C046DA770F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D91FF07-846C-4E92-8E34-E8038F587A2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D91FF07-846C-4E92-8E34-E8038F587A2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D91FF07-846C-4E92-8E34-E8038F587A2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D91FF07-846C-4E92-8E34-E8038F587A2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5C00DB2-385A-4829-B3C7-5973C4778792}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5C00DB2-385A-4829-B3C7-5973C4778792}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5C00DB2-385A-4829-B3C7-5973C4778792}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5C00DB2-385A-4829-B3C7-5973C4778792}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

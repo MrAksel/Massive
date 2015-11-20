@@ -1,19 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7F2BD5E9-4A54-45BA-96E1-ACD59C57005A}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{A1E4C69C-B140-4FA1-970C-31C046DA770F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Massive.Mathematics</RootNamespace>
-    <AssemblyName>Massive.Mathematics</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>Demo</RootNamespace>
+    <AssemblyName>Demo</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -38,49 +40,34 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\IndexedArraySegmentShiftHelper.cs" />
-    <Compile Include="Math\SignedMath.cs" />
-    <Compile Include="Math\UnsignedMath.cs" />
-    <Compile Include="Math\NaturalMath.cs" />
-    <Compile Include="Numerics\Adders\DefaultAdder.cs" />
-    <Compile Include="Numerics\Adders\DefaultAdderManager.cs" />
-    <Compile Include="Numerics\Adders\IAdderManager.cs" />
-    <Compile Include="Numerics\Adders\INaturalAdder.cs" />
-    <Compile Include="Numerics\Dividers\DefaultDividerManager.cs" />
-    <Compile Include="Numerics\Dividers\DivisionBySubtractionDivider.cs" />
-    <Compile Include="Numerics\Dividers\IDividerManager.cs" />
-    <Compile Include="Numerics\Dividers\INaturalDivider.cs" />
-    <Compile Include="Numerics\Dividers\LongDivider.cs" />
-    <Compile Include="Numerics\Dividers\RecursiveDivider.cs" />
-    <Compile Include="Numerics\Integer.cs" />
-    <Compile Include="Numerics\Multipliers\DefaultMultiplierManager.cs" />
-    <Compile Include="Numerics\Multipliers\IMultiplierManager.cs" />
-    <Compile Include="Numerics\Multipliers\INaturalMultiplier.cs" />
-    <Compile Include="Numerics\Multipliers\LongMultiplier.cs" />
-    <Compile Include="Numerics\Multipliers\MultiplicationByAdditionMultiplier.cs" />
-    <Compile Include="Numerics\Natural.cs" />
-    <Compile Include="Numerics\Subtracters\ComplementSubtracter.cs" />
-    <Compile Include="Numerics\Subtracters\DefaultSubtracterManager.cs" />
-    <Compile Include="Numerics\Subtracters\INaturalSubtracter.cs" />
-    <Compile Include="Numerics\Subtracters\ISubtracterManager.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Numerics\Skeleton.cs" />
-    <Compile Include="Resources\Strings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Massive.Collections\Massive.Collections.csproj">
       <Project>{6d91ff07-846c-4e92-8e34-e8038f587a2e}</Project>
       <Name>Massive.Collections</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Massive.Mathematics\Massive.Mathematics.csproj">
+      <Project>{7f2bd5e9-4a54-45ba-96e1-acd59c57005a}</Project>
+      <Name>Massive.Mathematics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Massive.Testing\Massive.Testing.csproj">
+      <Project>{a5c00db2-385a-4829-b3c7-5973c4778792}</Project>
+      <Name>Massive.Testing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Massive\Massive.csproj">
       <Project>{2938a119-603d-4b97-8a20-26c8bf9497c2}</Project>
       <Name>Massive</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
