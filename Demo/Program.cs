@@ -16,6 +16,9 @@ namespace Demo
 
         static void Main(string[] args)
         {
+            Natural n = Natural.Multiply(Natural.Increment((Natural)ulong.MaxValue), 2) / (Natural)ulong.MaxValue;
+
+
             Natural.DefaultNumberSize = 4;
 
             Type t = typeof(Massive.Testing.Mathematics.NaturalTests);

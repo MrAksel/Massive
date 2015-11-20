@@ -41,10 +41,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\IndexedArraySegmentShiftHelper.cs" />
+    <Compile Include="Math\SignedMath.cs" />
+    <Compile Include="Math\UnsignedMath.cs" />
+    <Compile Include="Math\NaturalMath.cs" />
+    <Compile Include="Numerics\Adders\DefaultAdder.cs" />
+    <Compile Include="Numerics\Adders\DefaultAdderManager.cs" />
+    <Compile Include="Numerics\Adders\IAdderManager.cs" />
+    <Compile Include="Numerics\Adders\INaturalAdder.cs" />
+    <Compile Include="Numerics\Dividers\DefaultDividerManager.cs" />
+    <Compile Include="Numerics\Dividers\DivisionBySubtractionDivider.cs" />
+    <Compile Include="Numerics\Dividers\IDividerManager.cs" />
+    <Compile Include="Numerics\Dividers\INaturalDivider.cs" />
+    <Compile Include="Numerics\Dividers\LongDivider.cs" />
+    <Compile Include="Numerics\Dividers\RecursiveDivider.cs" />
     <Compile Include="Numerics\Integer.cs" />
+    <Compile Include="Numerics\Multipliers\DefaultMultiplierManager.cs" />
+    <Compile Include="Numerics\Multipliers\IMultiplierManager.cs" />
+    <Compile Include="Numerics\Multipliers\INaturalMultiplier.cs" />
+    <Compile Include="Numerics\Multipliers\LongMultiplier.cs" />
+    <Compile Include="Numerics\Multipliers\MultiplicationByAdditionMultiplier.cs" />
     <Compile Include="Numerics\Natural.cs" />
+    <Compile Include="Numerics\Subtracters\ComplementSubtracter.cs" />
+    <Compile Include="Numerics\Subtracters\DefaultSubtracterManager.cs" />
+    <Compile Include="Numerics\Subtracters\INaturalSubtracter.cs" />
+    <Compile Include="Numerics\Subtracters\ISubtracterManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Numerics\Skeleton.cs" />
+    <Compile Include="Resources\Strings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Massive.Collections\Massive.Collections.csproj">
@@ -56,6 +80,7 @@
       <Name>Massive</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

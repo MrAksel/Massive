@@ -23,12 +23,12 @@ namespace Massive.Testing.Collections
 
             CollectionAssert.AreEqual(smn, seg.ToArray());
 
-            seg.ShiftLeft(2);
+            seg.ShiftContentsLeft(2);
 
             CollectionAssert.AreEqual(s2, seg.ToArray());
 
             seg = new IndexedArraySegment<byte>(arr.Duplicate(), 2, 5);
-            seg.ShiftLeft(6);
+            seg.ShiftContentsLeft(6);
 
             CollectionAssert.AreEqual(s6, seg.ToArray());
         }
@@ -51,14 +51,14 @@ namespace Massive.Testing.Collections
             CollectionAssert.AreEqual(smn, res);
 
             Debug.WriteLine("Testing rightshift 3");
-            seg.ShiftRight(3);
+            seg.ShiftContentsRight(3);
             res = seg.ToArray();
             Debug.WriteLine("{0}\n{1}", BitConverter.ToString(res), BitConverter.ToString(s3));
             CollectionAssert.AreEqual(s3, res);
 
             seg = new IndexedArraySegment<byte>(arr.Duplicate(), 1, 8);
             Debug.WriteLine("Testing rightshift 6");
-            seg.ShiftRight(6);
+            seg.ShiftContentsRight(6);
             res = seg.ToArray();
             Debug.WriteLine("{0}\n{1}", BitConverter.ToString(res), BitConverter.ToString(s6));
             CollectionAssert.AreEqual(s6, res);

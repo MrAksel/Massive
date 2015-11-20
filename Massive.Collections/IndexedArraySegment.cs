@@ -7,6 +7,10 @@ using System.Linq;
 namespace Massive.Collections
 {
     // Thank you Microsoft for a great start (and time saver). http://referencesource.microsoft.com/#mscorlib/system/arraysegment.cs
+    /// <summary>
+    /// Wrapper over a part of an array. Provides some extra functionality.
+    /// All data is stored and treated as little endian (least significant first)
+    /// </summary>
     public class IndexedArraySegment<T> : IList<T>, IReadOnlyList<T>
     {
         private T[] _array;
@@ -31,7 +35,7 @@ namespace Massive.Collections
                 throw new ArgumentOutOfRangeException("offset");
             if (count < 0)
                 throw new ArgumentOutOfRangeException("count");
-            if (array.Length - offset < count)
+            if (offset + count > array.Length)
                 throw new ArgumentException();
 
             _array = array;
@@ -106,7 +110,7 @@ namespace Massive.Collections
             return t;
         }
 
-        public void Grow(int newSize)
+        public void ExpandWindow(int newSize)
         {
             if (_count >= newSize)
                 return;
@@ -123,7 +127,7 @@ namespace Massive.Collections
             _count = newSize;
         }
 
-        public void Shrink(int newSize)
+        public void ShrinkWindow(int newSize)
         {
             if (_count <= newSize)
                 return;
@@ -138,7 +142,7 @@ namespace Massive.Collections
             return string.Join(" ", ToArray().Select(v => v.ToString()));
         }
 
-        public void ShiftLeft(int elements)
+        public void ShiftContentsLeft(int elements)
         {
 
             // 01 | 02 03 04 | 05 06      // elements = 3, missing = 1
@@ -166,7 +170,7 @@ namespace Massive.Collections
             Debug.WriteLine(ToString());
         }
 
-        public void ShiftRight(int elements)
+        public void ShiftContentsRight(int elements)
         {
             int oldoffset = _offset;
 

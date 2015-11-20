@@ -9,14 +9,16 @@ using System.Text;
 using System.Threading;
 using Carry = System.UInt64;
 using Digit = System.UInt32;
-
+using Massive.Mathematics.Numerics.Adders;
+using Massive.Mathematics.Numerics.Subtracters;
+using Massive.Mathematics.Numerics.Multipliers;
+using Massive.Mathematics.Numerics.Dividers;
+using Massive.Mathematics.Extensions;
 
 namespace Massive.Mathematics.Numerics
 {
     public class Natural : IComparable, IFormattable, IConvertible, IComparable<Natural>, IEquatable<Natural>
     {
-        private const string WouldBeNegative = "Operation would return a negative value.";
-
         private static int default_number_size = 4;
         public static int DefaultNumberSize
         {
@@ -34,10 +36,10 @@ namespace Massive.Mathematics.Numerics
             }
         }
 
-        private int usedDigits;
-        private Stack<int> lengths;
+        internal int usedDigits;
+        internal Stack<int> lengths;
 
-        private IndexedArraySegment<Digit> digits;
+        internal IndexedArraySegment<Digit> digits;
 
         public static Natural Zero
         {
@@ -63,6 +65,71 @@ namespace Massive.Mathematics.Numerics
             }
         }
 
+        #region Operation managers
+
+        static IAdderManager adderManager = new DefaultAdderManager();
+        static ISubtracterManager subtracterManager = new DefaultSubtracterManager();
+        static IMultiplierManager multiplierManager = new DefaultMultiplierManager();
+        static IDividerManager dividerManager = new DefaultDividerManager();
+
+        public static IAdderManager AdderManager
+        {
+            get
+            {
+                return adderManager;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                adderManager = value;
+            }
+        }
+
+        public static ISubtracterManager SubtracterManager
+        {
+            get
+            {
+                return subtracterManager;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                subtracterManager = value;
+            }
+        }
+
+        public static IMultiplierManager MultiplierManager
+        {
+            get
+            {
+                return multiplierManager;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                multiplierManager = value;
+            }
+        }
+
+        public static IDividerManager DividerManager
+        {
+            get
+            {
+                return dividerManager;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException();
+                dividerManager = value;
+            }
+        }
+
+        #endregion
+
         #region Constructors
 
         public Natural()
@@ -75,10 +142,10 @@ namespace Massive.Mathematics.Numerics
         }
 
         public Natural(int value)
-            : this()
+        : this()
         {
             if (value < 0)
-                throw new InvalidOperationException(WouldBeNegative);
+                throw new InvalidOperationException(Resources.Strings.WouldBeNegative);
 
             digits[0] = (uint)value;
             usedDigits = 1;
@@ -86,17 +153,17 @@ namespace Massive.Mathematics.Numerics
 
         [CLSCompliant(false)]
         public Natural(uint value)
-            : this()
+                : this()
         {
             digits[0] = value;
             usedDigits = 1;
         }
 
         public Natural(long value)
-            : this()
+                : this()
         {
             if (value < 0)
-                throw new InvalidOperationException(WouldBeNegative);
+                throw new InvalidOperationException(Resources.Strings.WouldBeNegative);
 
             ulong v = (ulong)value;
 
@@ -109,17 +176,30 @@ namespace Massive.Mathematics.Numerics
 
         [CLSCompliant(false)]
         public Natural(ulong value)
-            : this()
+                : this()
         {
             Grow(2);
 
-            digits[0] = (uint)(value &  0x00000000FFFFFFFF);
+            digits[0] = (uint)(value & 0x00000000FFFFFFFF);
             digits[1] = (uint)((value & 0xFFFFFFFF00000000) >> 32);
             usedDigits = (digits[1] > 0 ? 2 : 1);
         }
 
         [CLSCompliant(false)]
         public Natural(Digit[] digits, int nDigits = -1)
+        {
+            this.digits = digits;
+            lengths = new Stack<int>();
+            lengths.Push(0);
+
+            if (nDigits < 1)
+                NotifyUpdate();
+            else
+                this.usedDigits = nDigits;
+        }
+
+        [CLSCompliant(false)]
+        public Natural(IndexedArraySegment<Digit> digits, int nDigits = -1)
         {
             this.digits = digits;
             lengths = new Stack<int>();
@@ -143,7 +223,7 @@ namespace Massive.Mathematics.Numerics
         public static Natural operator --(Natural x)
         {
             if (x == 0)
-                throw new InvalidOperationException(WouldBeNegative);
+                throw new InvalidOperationException(Resources.Strings.WouldBeNegative);
             return x - 1;
         }
 
@@ -199,21 +279,7 @@ namespace Massive.Mathematics.Numerics
             return Natural.Modulus(r, y);
         }
 
-        public static int operator %(Natural x, int y)
-        {
-            Natural q;
-            int r;
-            DivModSlow(x, y, out q, out r);
-            return r;
-        }
-
-        public static long operator %(Natural x, long y)
-        {
-            Natural q;
-            long r;
-            DivModSlow(x, y, out q, out r);
-            return r;
-        }
+        // TODO Modulo for ints and longs
 
         #endregion
 
@@ -231,80 +297,12 @@ namespace Massive.Mathematics.Numerics
             return Natural.Complement(n, digits);
         }
 
-        public static void DivMod(Natural n, Natural d, out Natural q, out Natural r)
+        public static void DivRem(Natural n, Natural d, out Natural q, out Natural r)
         {
-            DivModSlow(n, d, out q, out r);
-        }
-        public static void DivMod(Natural n, int d, out Natural q, out int r)
-        {
-            DivModSlow(n, d, out q, out r);
-        }
-        public static void DivMod(Natural n, long d, out Natural q, out long r)
-        {
-            DivModSlow(n, d, out q, out r);
+            DividerManager.GetDivider(n, d).DivRem(n, d, out q, out r);
         }
 
-        /// <summary>
-        /// Multiplication by repeated addition
-        /// </summary>
-        private static Natural MulSlow(Natural x, Natural y)
-        {
-            if (x == 0 || y == 0)
-                return Natural.Zero;
-
-            Natural n = Natural.Zero;
-            n.PushLength(x.usedDigits * y.usedDigits);
-
-            y = y.Clone();
-
-            while (y > 0) // We already have 1x
-            {
-                Natural.Add(n, x);
-                Natural.Decrement(y);
-            }
-
-            n.PopLength();
-
-            return n;
-        }
-
-        private static Natural MulLong(Natural x, Natural y)
-        {
-            if (x == 0 || y == 0)
-            {
-                return Natural.Zero;
-            }
-            if (y == 1)
-            {
-                return x.Clone();
-            }
-
-            Natural total = Natural.Zero;
-
-            for (int i = 0; i < x.usedDigits; i++)
-            {
-                Digit d = x.digits[i];
-                Natural partial = MulDigit(y, d);
-                Natural.ShiftLeft(partial, i);
-                Natural.Add(total, partial);
-            }
-
-            return total;
-        }
-
-        private static Natural MulDigit(Natural x, Digit y)
-        {
-            Natural total = 0;
-            for (int i = 0; i < x.usedDigits; i++)
-            {
-                Natural partial = (Carry)x.digits[i] * y;
-                Natural.ShiftLeft(partial, i);
-
-                Natural.Add(total, partial);
-            }
-
-            return total;
-        }
+        // TODO DivRem for int and long types
 
         /*
         /// <summary>
@@ -332,99 +330,6 @@ namespace Massive.Mathematics.Numerics
         }
         */
 
-        /// <summary>
-        /// Division by repeated subtraction
-        /// </summary>
-        /// <param name="n">Dividend</param>
-        /// <param name="d">Divisor</param>
-        /// <param name="q">Quotient</param>
-        /// <param name="r">Remainder</param>
-        private static void DivModSlow(Natural n, Natural d, out Natural q, out Natural r)
-        {
-            if (d == 0)
-                throw new DivideByZeroException();
-
-            n = n.Clone();
-
-            q = 0;
-
-            while (n >= d)
-            {
-                Natural.Subtract(n, d);
-                Natural.Increment(q);
-            }
-
-            r = n;
-        }
-
-        private static void DivModSlow(Natural n, int d, out Natural q, out int r)
-        {
-            if (d == 0)
-                throw new DivideByZeroException();
-
-            n = n.Clone();
-            q = 0;
-
-            //We only care about positive numbers
-            uint _d = (uint)(d == int.MinValue ? d : Math.Abs(d));
-
-            while (n >= _d)
-            {
-                Natural.Subtract(n, _d);
-                Natural.Increment(q);
-            }
-
-            r = (int)n;
-        }
-
-        private static void DivModSlow(Natural n, long d, out Natural q, out long r)
-        {
-            if (d == 0)
-                throw new DivideByZeroException();
-
-            n = n.Clone();
-            q = 0;
-
-            //We only care about positive numbers
-            ulong _d = (ulong)(d == long.MinValue ? d : Math.Abs(d));
-
-            while (n >= _d)
-            {
-                Natural.Subtract(n, _d);
-                Natural.Increment(q);
-            }
-
-            r = (long)n;
-        }
-
-
-        private static void DivModLong(Natural n, Natural d, out Natural q, out Natural r)
-        {
-            if (d == Natural.Zero)
-                throw new DivideByZeroException();
-
-            n = n.Clone();
-            q = 0;
-
-            while (n > d) // TODO Optimize this away
-            {
-                // Take enough digits to be larger than d
-                IndexedArraySegment<Digit> seg = n.digits.GetSegment(0, d.usedDigits);
-                for (int i = d.usedDigits - 1; d >= 0; d--)
-                {
-                    if (d.digits[i] > seg.Array[seg.Offset + i])
-                    {
-                        seg.Grow(seg.Count + 1);
-                        break;
-                    }
-                }
-
-
-            }
-
-            r = n;
-        }
-
         #endregion
 
         #endregion
@@ -433,67 +338,20 @@ namespace Massive.Mathematics.Numerics
 
         public static Natural Add(Natural x, Natural y)
         {
-            int length = Math.Max(x.usedDigits, y.usedDigits);
-
-            x.PushLength(length + 1);
-            y.PushLength(length); // TODO Optimize this..
-
-            Digit carry = 0;
-            for (int i = 0; i < length; i++)
-            {
-                Carry res = (Carry)x.digits[i] + y.digits[i] + carry;
-                Digit val;
-                if (res > Digit.MaxValue)
-                {
-                    carry = 1;
-                    val = (Digit)(res - Digit.MaxValue - 1);
-                }
-                else
-                {
-                    carry = 0;
-                    val = (Digit)res;
-                }
-
-                x.digits[i] = val;
-            }
-            x.digits[length] = carry;
-            x.usedDigits = length + (int)carry; // If carry == 1 we used another extra digit
-
-            x.PopLength();
-            y.PopLength();
-
+            adderManager.GetAdder(x, y).Add(x, y);
             return x;
         }
 
         public static Natural Subtract(Natural x, Natural y)
         {
-            /*
-             * If y is zero, return x
-             * If x is larger than y, use Sub1
-             * If x is smaller than y, would return negative
-             * If x == y, set x to 0 and return x
-             */
-
-            if (y == 0)
-                return x;
-            else if (x > y)
-            {
-                return Natural.Complement(Natural.Add(Natural.Complement(x), y));
-            }
-            else if (x < y)
-            {
-                throw new InvalidOperationException(WouldBeNegative);
-            }
-            else
-            {
-                return x.Clear();
-            }
+            subtracterManager.GetSubtracter(x, y).Subtract(x, y);
+            return x;
         }
 
         public static Natural Multiply(Natural x, Natural y)
         {
-            Natural res = MulLong(x, y);
-            return x.SetValue(res);
+            multiplierManager.GetMultiplier(x, y).Multiply(x, y);
+            return x;
         }
 
         public static Natural Divide(Natural x, Natural y)
@@ -501,17 +359,16 @@ namespace Massive.Mathematics.Numerics
             if (y == Natural.Zero)
                 throw new DivideByZeroException();
 
-            Natural q, m;
-            DivModSlow(x, y, out q, out m);
-            x.Swap(q);
+            dividerManager.GetDivider(x, y).Divide(x, y);
             return x;
         }
 
         public static Natural Modulus(Natural x, Natural y)
         {
-            Natural q, m;
-            DivModSlow(x, y, out q, out m);
-            x.Swap(m);
+            if (y == Natural.Zero)
+                throw new DivideByZeroException();
+
+            dividerManager.GetDivider(x, y).Remainder(x, y);
             return x;
         }
 
@@ -522,26 +379,42 @@ namespace Massive.Mathematics.Numerics
         /// <returns></returns>
         public static Natural Complement(Natural n)
         {
+            int highestDigit = 0; // Position of last nonzero digit
             for (int i = 0; i < n.usedDigits; i++)
+            {
                 n.digits[i] = Digit.MaxValue - n.digits[i];
+                if (n.digits[i] != 0)
+                    highestDigit = i;
+            }
+
+            highestDigit = highestDigit + 1;
+            n.usedDigits = highestDigit; // We checked all digits - no nonzero above highestDigit
 
             return n;
         }
 
-        /// <summary>
-        /// Returns the diminished radix complement of the number.
-        /// </summary>
-        /// <param name="n">A Natural number.</param>
-        /// <param name="digits">The significant amount of digits to be modified.</param>
-        /// <returns></returns>
         public static Natural Complement(Natural n, int digits)
         {
             n.PushLength(digits);
 
+            int highestDigit = 0; // Position of last nonzero digit
             for (int i = 0; i < digits; i++)
+            {
                 n.digits[i] = Digit.MaxValue - n.digits[i];
+                if (n.digits[i] != 0)
+                    highestDigit = i;
+            }
+
+            highestDigit = highestDigit + 1;
+            if (digits == n.usedDigits)
+                n.usedDigits = highestDigit; // We complemented every digit, no nonzero digits after highestDigit
+            else if (n.usedDigits < highestDigit)
+                n.usedDigits = highestDigit; // All digits above usedDigits became Digit.MaxValue
+            else
+                ;   // We didn't check up to usedDigits - so there are still nonzero digits above highestDigit
 
             n.PopLength();
+
             return n;
         }
 
@@ -563,8 +436,8 @@ namespace Massive.Mathematics.Numerics
             if (numDigits < 0)
                 return Natural.ShiftRight(n, -numDigits);
 
-            n.digits.Grow(n.digits.Count + numDigits);
-            n.digits.ShiftRight(numDigits);
+            n.digits.ExpandWindow(n.digits.Count + numDigits);
+            n.digits.ShiftContentsRight(numDigits);
             n.usedDigits += numDigits;
             return n;
         }
@@ -577,11 +450,51 @@ namespace Massive.Mathematics.Numerics
             if (numDigits < 0)
                 return Natural.ShiftLeft(n, -numDigits);
 
-            n.digits.ShiftLeft(numDigits); // Actual array shift direction is opposite of digit order
+            n.digits.ShiftContentsLeft(numDigits); // Actual array shift direction is opposite of digit order
             if (numDigits >= n.usedDigits)
                 n.usedDigits = 1;
             else
                 n.usedDigits -= numDigits;
+
+            return n;
+        }
+
+        public static Natural BitShiftLeft(Natural n, long numBits)
+        {
+            if (numBits == 0)
+                return n;
+
+            if (numBits < 0)
+                return Natural.BitShiftRight(n, -numBits);
+
+            int extrabits = UnsignedMath.HighestBitSetPosition(n.digits[n.usedDigits - 1]); // Additional bits used in the most significant digit
+            int extradigits = (int)((extrabits + numBits) / 32);
+            int totaldigits = n.usedDigits + extradigits;
+
+            n.PushLength(totaldigits);              // Might shift past window of digit buffer, expand up front in case this happens
+            n.digits.BitShiftContentRight(numBits); // Actual array shift direction is opposite of digit order
+            n.PopLength();
+
+            n.usedDigits = totaldigits;  // Increase usedDigits by new digits after shifting
+
+            return n;
+        }
+
+        public static Natural BitShiftRight(Natural n, long numBits)
+        {
+            if (numBits == 0)
+                return n;
+
+            if (numBits < 0)
+                return Natural.BitShiftLeft(n, -numBits);
+
+            int extrabits = UnsignedMath.HighestBitSetPosition(n.digits[n.usedDigits - 1]) + 1; // If we shift 'extrabits' times, the most significant digit becomes zero
+            int totbits = (n.usedDigits - 1) * 32 + extrabits;  // Have to shift 'totbits' times to make whole number zero
+
+            n.digits.BitShiftContentLeft(numBits); // Actual array shift direction is opposite of digit order
+            n.usedDigits = (int)(totbits - numBits + 31) / 32; // Round division up
+            if (n.usedDigits < 1)
+                n.usedDigits = 1;
 
             return n;
         }
@@ -603,20 +516,31 @@ namespace Massive.Mathematics.Numerics
 
             Natural result = Natural.One;
 
+            Natural sqr = num.Clone();
             Natural q = exponent;
-            int r;
+            Natural r;
             while (q > 1)
             {
-                Natural.DivMod(q, 2, out q, out r);
+                Natural.DivRem(q, 2, out q, out r);
 
                 if (r == 1)
                     Natural.Multiply(result, num);
 
-                Natural.Multiply(num, num);
+                Natural.Multiply(sqr, sqr);
 
             }
 
-            return result * num;
+            return Natural.Multiply(sqr, result);
+        }
+
+        public static Natural Log2(Natural num)
+        {
+            return num.usedDigits * 32;
+        }
+
+        public static Natural Log32(Natural num)
+        {
+            return num.usedDigits;
         }
 
         #endregion
@@ -942,7 +866,7 @@ namespace Massive.Mathematics.Numerics
         public static explicit operator Natural(BigInteger x)
         {
             if (x.Sign < 0)
-                throw new InvalidOperationException(WouldBeNegative);
+                throw new InvalidOperationException(Resources.Strings.WouldBeNegative);
 
             byte[] lEndianArray = x.ToByteArray();
             if (lEndianArray.Length == 0)
@@ -994,12 +918,13 @@ namespace Massive.Mathematics.Numerics
             StringBuilder sb = new StringBuilder();
             Natural value = this.Clone();
             Natural q;
-            int r;
+            Natural r;
 
             do
             {
-                Natural.DivModSlow(value, radix, out q, out r);
-                sb.Insert(0, baseChars[r]);
+                Natural.DivRem(value, radix, out q, out r);
+                int ri = (int)r;
+                sb.Insert(0, baseChars[ri]);
                 value = q;
             } while (value > 0);
 
@@ -1084,6 +1009,18 @@ namespace Massive.Mathematics.Numerics
             Grow(usedDigits);
         }
 
+        public void NotifyUpdate(int startPos)
+        {
+            // Loop from end of array to start to find the index of the first significant digit
+            usedDigits = startPos;
+            while (usedDigits > 1 && digits[usedDigits - 1] == 0)
+                usedDigits--;
+
+            //Debug.WriteLine("Counted {0} digits", usedDigits);
+            //Grow the array to make room for more digits
+            Grow(usedDigits);
+        }
+
         public byte[] GetLittleEndianByteArray()
         {
             return Helper.ConvertUIntArrayToByteArrayLE(GetLittleEndianUIntArray());
@@ -1097,14 +1034,14 @@ namespace Massive.Mathematics.Numerics
             return d;
         }
 
-        private void PushLength(int length)
+        public void PushLength(int length)
         {
             lengths.Push(length);
 
             Grow(length);
         }
 
-        private void PopLength()
+        public void PopLength()
         {
             int min = 0;
             if (lengths.Count > 0)
@@ -1120,7 +1057,7 @@ namespace Massive.Mathematics.Numerics
                 return;
 
             //Debug.WriteLine("Grow array from {0} to {1} digits", digits.Count, tl);
-            digits.Grow(tl);
+            digits.ExpandWindow(tl);
         }
 
         private void GrowShrink(int length)
@@ -1137,12 +1074,12 @@ namespace Massive.Mathematics.Numerics
                     return; // Can't shrink more
 
                 //Debug.WriteLine("Shrink array from {0} to {1} digits", digits.Count, tl);
-                digits.Shrink(minl);
+                digits.ShrinkWindow(minl);
             }
             else // Want to grow
             {
                 //Debug.WriteLine("Grow array from {0} to {1} digits", digits.Count, tl);
-                digits.Grow(tl);
+                digits.ExpandWindow(tl);
             }
         }
 

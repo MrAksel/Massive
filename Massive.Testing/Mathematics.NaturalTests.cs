@@ -143,7 +143,13 @@ namespace Massive.Testing.Mathematics
                     if (r == 0)
                         continue;
 
-                    Assert.AreEqual(bl / br, (BigInteger)(ll / rr));
+                    BigInteger resb = bl / br;
+                    BigInteger resn = (BigInteger)(ll / rr);
+
+                    if (resb != resn)
+                        Debugger.Break();
+
+                    Assert.AreEqual(resb, resn);
                 }
             }
         }
