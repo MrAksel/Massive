@@ -16,11 +16,125 @@ namespace Demo
 
         static void Main(string[] args)
         {
-            Natural n = Natural.Multiply(Natural.Increment((Natural)ulong.MaxValue), 2) / (Natural)ulong.MaxValue;
-
+            Console.BufferWidth += 50;
+            Console.WindowWidth += 50;
 
             Natural.DefaultNumberSize = 4;
 
+            Test64Bit64BitDiv();
+            Test64BitVariableDiv();
+            TestLargeNum(64);
+            TestLargeNum(1024);
+
+            TestMethods();
+
+            Console.WriteLine("Done");
+            Console.ReadLine();
+        }
+
+        private static void Test64BitVariableDiv()
+        {
+            uint iterations = (uint)Math.Pow(10, 4);
+            uint inner = 10;
+
+            Stopwatch stop = new Stopwatch();
+            Random rand = new Random();
+            byte[] buff;
+            int l;
+
+            for (uint i = 0; i < iterations / inner; i++)
+            {
+                buff = new byte[8];
+                rand.NextBytes(buff);
+                buff[7] = (byte)rand.Next(1, 256);
+                Natural n1 = new Natural(Massive.Helper.ConvertByteArrayToUIntArrayLE(buff));
+
+                l = rand.Next(1, 8);
+                buff = new byte[l];
+                rand.NextBytes(buff);
+                buff[l - 1] = (byte)rand.Next(1, 256);
+                Natural n2 = new Natural(Massive.Helper.ConvertByteArrayToUIntArrayLE(buff));
+
+                stop.Start();
+                for (uint j = 0; j < inner; j++)
+                {
+                    Natural res = n1 / n2;
+                }
+                stop.Stop();
+            }
+
+            long nspTick = 1000L * 1000L * 1000L / Stopwatch.Frequency;
+            Console.WriteLine("{0} milliseconds for {1} 64-bit by random size divisions. {2} ticks/div ({3}ns/div, {4}ms/div)", stop.ElapsedMilliseconds, iterations, stop.ElapsedTicks / iterations, (stop.ElapsedTicks * nspTick) / iterations, (stop.ElapsedTicks * nspTick / 1000000L) / iterations);
+        }
+
+        private static void Test64Bit64BitDiv()
+        {
+            uint iterations = (uint)Math.Pow(10, 4);
+            uint inner = 10;
+
+            Stopwatch stop = new Stopwatch();
+            Random rand = new Random();
+            byte[] buff = new byte[8];
+
+            for (uint i = 0; i < iterations / inner; i++)
+            {
+                rand.NextBytes(buff);
+                buff[7] = (byte)rand.Next(1, 256);
+                Natural n1 = new Natural(Massive.Helper.ConvertByteArrayToUIntArrayLE(buff));
+
+                rand.NextBytes(buff);
+                buff[7] = (byte)rand.Next(1, 256);
+                Natural n2 = new Natural(Massive.Helper.ConvertByteArrayToUIntArrayLE(buff));
+
+                stop.Start();
+                for (uint j = 0; j < inner; j++)
+                {
+                    Natural res = n1 / n2;
+                }
+                stop.Stop();
+            }
+
+            long nspTick = 1000L * 1000L * 1000L / Stopwatch.Frequency;
+            Console.WriteLine("{0} milliseconds for {1} 64 by 64-bit divisions. {2} ticks/div ({3}ns/div, {4}ms/div)", stop.ElapsedMilliseconds, iterations, stop.ElapsedTicks / iterations, (stop.ElapsedTicks * nspTick) / iterations, (stop.ElapsedTicks * nspTick / 1000000L) / iterations);
+        }
+
+        private static void TestLargeNum(int bits)
+        {
+            uint iterations = (uint)Math.Pow(10, 3);
+            uint inner = 10;
+            int size = bits / 8; //Number of bytes
+
+            Stopwatch stop = new Stopwatch();
+            Random rand = new Random();
+            byte[] buff;
+            int l;
+
+            for (uint i = 0; i < iterations / inner; i++)
+            {
+                buff = new byte[size];
+                rand.NextBytes(buff);
+                buff[size - 1] = (byte)rand.Next(1, 256);
+                Natural n1 = new Natural(Massive.Helper.ConvertByteArrayToUIntArrayLE(buff));
+
+                l = rand.Next(1, size);
+                buff = new byte[l];
+                rand.NextBytes(buff);
+                buff[l - 1] = (byte)rand.Next(1, 256);
+                Natural n2 = new Natural(Massive.Helper.ConvertByteArrayToUIntArrayLE(buff));
+
+                stop.Start();
+                for (uint j = 0; j < inner; j++)
+                {
+                    Natural res = n1 / n2;
+                }
+                stop.Stop();
+            }
+            long nspTick = 1000L * 1000L * 1000L / Stopwatch.Frequency;
+            Console.WriteLine("{0} milliseconds for {1} {5}-bit by random size divisions. {2} ticks/div ({3}ns/div, {4}ms/div)", stop.ElapsedMilliseconds, iterations, stop.ElapsedTicks / iterations, (stop.ElapsedTicks * nspTick) / iterations, (stop.ElapsedTicks * nspTick / 1000000L) / iterations, bits);
+        }
+
+        private static void TestMethods()
+        {
             Type t = typeof(Massive.Testing.Mathematics.NaturalTests);
             object instance = new Massive.Testing.Mathematics.NaturalTests();
 
@@ -37,10 +151,7 @@ namespace Demo
                         Console.WriteLine(ex.InnerException.Message);
                 }
             }
-
-            Console.ReadLine();
         }
-
 
         private static string A<T>(T[] array)
         {
