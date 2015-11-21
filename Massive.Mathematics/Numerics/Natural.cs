@@ -1004,6 +1004,9 @@ namespace Massive.Mathematics.Numerics
             while (usedDigits > 1 && digits[usedDigits - 1] == 0)
                 usedDigits--;
 
+            if (usedDigits == 0)
+                usedDigits = 1;
+
             //Debug.WriteLine("Counted {0} digits", usedDigits);
             //Grow the array to make room for more digits
             Grow(usedDigits);
