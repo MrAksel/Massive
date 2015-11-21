@@ -53,7 +53,6 @@
     <Compile Include="Numerics\Dividers\DivisionBySubtractionDivider.cs" />
     <Compile Include="Numerics\Dividers\IDividerManager.cs" />
     <Compile Include="Numerics\Dividers\INaturalDivider.cs" />
-    <Compile Include="Numerics\Dividers\LongDivider.cs" />
     <Compile Include="Numerics\Dividers\RecursiveDivider.cs" />
     <Compile Include="Numerics\Integer.cs" />
     <Compile Include="Numerics\Multipliers\DefaultMultiplierManager.cs" />

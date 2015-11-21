@@ -1215,15 +1215,15 @@ namespace Massive.Mathematics.Numerics
 
         public int CompareTo(Natural other)
         {
-            if (other.usedDigits < this.usedDigits) //The other was smaller, I'm last
-                return 1;
-            else if (other.usedDigits > this.usedDigits) //The other was larger, I'm first
+            if (this.usedDigits < other.usedDigits) // This was smaller ( CompareTo() < 0 )
                 return -1;
+            else if (this.usedDigits > other.usedDigits) // This was larger ( CompareTo() > 0 )
+                return 1;
             else
             {
-                for (int d = other.usedDigits; d >= 0; d--)
+                for (int d = other.usedDigits - 1; d >= 0; d--)
                 {
-                    int res = other.digits[d].CompareTo(this.digits[d]);
+                    int res = digits[d].CompareTo(other.digits[d]);
                     if (res != 0)
                         return res;
                 }
