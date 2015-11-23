@@ -37,7 +37,7 @@ namespace Massive.Mathematics.Numerics.Dividers
         private void InternalDivRem(Natural dividend, Natural divisor, out Natural quotient, out Natural remainder)
         {
             int dcmp = dividend.CompareTo(divisor);
-            if (dcmp == 0) 
+            if (dcmp == 0)
             {
                 quotient = Natural.One;
                 remainder = Natural.Zero;
@@ -50,30 +50,27 @@ namespace Massive.Mathematics.Numerics.Dividers
             else // dividend > divisor
             {
                 Natural modifiedDivisor = divisor.Clone();
-
                 Natural subquotient = Natural.One;
+
+                long bitshifts = Natural.Log2(dividend) - Natural.Log2(modifiedDivisor); // Gets how many factors of two from divisor to dividend
+                Natural.BitShiftLeft(modifiedDivisor, bitshifts); // Shifts divisor that many times (multiply by 2^bitshifts)
+                Natural.BitShiftLeft(subquotient, bitshifts);
+
                 int cmp = dividend.CompareTo(modifiedDivisor);
-                while (cmp > 0)
+                if (cmp < 0) // Dividend < modifiedDivisors - shifted 1 too much
                 {
-                    Natural.BitShiftLeft(subquotient, 2); // Multiply both by 4 (seems to work okay)
-                    Natural.BitShiftLeft(modifiedDivisor, 2);
-                    cmp = dividend.CompareTo(modifiedDivisor);
+                    Natural.BitShiftRight(subquotient, 1); // Divide by 2 to get the right quotient
+                    Natural.BitShiftRight(modifiedDivisor, 1);
                 }
-                if (cmp == 0) // Divisor equal to dividend!
+                else if (cmp == 0) // Divisor equal to dividend!
                 {
                     quotient = subquotient;
                     remainder = Natural.Zero;
                     return;
                 }
-                else if (cmp < 0) // Dividend < modifiedDivisor
-                {
-                    Natural.BitShiftRight(subquotient, 2); // Divide by 4 to get the right quotient
-                    Natural.BitShiftRight(modifiedDivisor, 2);
 
-                    // Dividend > modifiedDivisor
-                }
+                // dividend > modifiedDivisor
                 Natural newDividend = Natural.Subtract(dividend, modifiedDivisor); // Optimize away the clone (put this in private function - clone up front)
-
                 InternalDivRem(newDividend, divisor, out quotient, out remainder); // Repeat division on difference between dividend and modifiedDivisor 
 
                 Natural.Add(quotient, subquotient); // Add the quotient we calculated in this iteration

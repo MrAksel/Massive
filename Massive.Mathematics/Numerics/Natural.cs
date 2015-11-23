@@ -138,7 +138,7 @@ namespace Massive.Mathematics.Numerics
 
             usedDigits = 1;
             lengths = new Stack<int>();
-            lengths.Push(0);
+            lengths.Push(1);
         }
 
         public Natural(int value)
@@ -190,7 +190,7 @@ namespace Massive.Mathematics.Numerics
         {
             this.digits = digits;
             lengths = new Stack<int>();
-            lengths.Push(0);
+            lengths.Push(1);
 
             if (nDigits < 1)
                 NotifyUpdate();
@@ -467,15 +467,16 @@ namespace Massive.Mathematics.Numerics
             if (numBits < 0)
                 return Natural.BitShiftRight(n, -numBits);
 
-            int extrabits = UnsignedMath.HighestBitSetPosition(n.digits[n.usedDigits - 1]); // Additional bits used in the most significant digit
-            int extradigits = (int)((extrabits + numBits) / 32);
-            int totaldigits = n.usedDigits + extradigits;
+            int extrabits = UnsignedMath.Log2(n.digits[n.usedDigits - 1]) + 1; // Additional bits used in the most significant digit
+            long totbits = (n.usedDigits - 1) * 32L + extrabits + numBits;
+            int totaldigits = (int)((totbits + 31) / 32);
 
             n.PushLength(totaldigits);              // Might shift past window of digit buffer, expand up front in case this happens
-            n.digits.BitShiftContentRight(numBits); // Actual array shift direction is opposite of digit order
-            n.PopLength();
 
+            n.digits.BitShiftContentRight(numBits); // Actual array shift direction is opposite of digit order
             n.usedDigits = totaldigits;  // Increase usedDigits by new digits after shifting
+
+            n.PopLength();       
 
             return n;
         }
@@ -488,7 +489,7 @@ namespace Massive.Mathematics.Numerics
             if (numBits < 0)
                 return Natural.BitShiftLeft(n, -numBits);
 
-            int extrabits = UnsignedMath.HighestBitSetPosition(n.digits[n.usedDigits - 1]) + 1; // If we shift 'extrabits' times, the most significant digit becomes zero
+            int extrabits = UnsignedMath.Log2(n.digits[n.usedDigits - 1]) + 1; // If we shift 'extrabits' times, the most significant digit becomes zero
             int totbits = (n.usedDigits - 1) * 32 + extrabits;  // Have to shift 'totbits' times to make whole number zero
 
             n.digits.BitShiftContentLeft(numBits); // Actual array shift direction is opposite of digit order
@@ -533,12 +534,12 @@ namespace Massive.Mathematics.Numerics
             return Natural.Multiply(sqr, result);
         }
 
-        public static Natural Log2(Natural num)
+        public static long Log2(Natural num)
         {
-            return num.usedDigits * 32;
+            return num.usedDigits * 32L + UnsignedMath.Log2(num.digits[num.usedDigits - 1]) + 1;
         }
 
-        public static Natural Log32(Natural num)
+        public static int Log32(Natural num)
         {
             return num.usedDigits;
         }

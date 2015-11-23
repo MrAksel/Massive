@@ -14,6 +14,9 @@ namespace Demo
     {
         static ulong[] samples = new ulong[] { 0, 1, 2, 5, 10, 100000, int.MaxValue, uint.MaxValue - 1, ulong.MaxValue / 2, ulong.MaxValue };
 
+        static uint iterations = (uint)Math.Pow(10, 3);
+        static uint inner = 1;
+
         static void Main(string[] args)
         {
             Console.BufferWidth += 50;
@@ -34,9 +37,6 @@ namespace Demo
 
         private static void Test64BitVariableDiv()
         {
-            uint iterations = (uint)Math.Pow(10, 4);
-            uint inner = 10;
-
             Stopwatch stop = new Stopwatch();
             Random rand = new Random();
             byte[] buff;
@@ -69,9 +69,6 @@ namespace Demo
 
         private static void Test64Bit64BitDiv()
         {
-            uint iterations = (uint)Math.Pow(10, 4);
-            uint inner = 10;
-
             Stopwatch stop = new Stopwatch();
             Random rand = new Random();
             byte[] buff = new byte[8];
@@ -100,8 +97,6 @@ namespace Demo
 
         private static void TestLargeNum(int bits)
         {
-            uint iterations = (uint)Math.Pow(10, 3);
-            uint inner = 10;
             int size = bits / 8; //Number of bytes
 
             Stopwatch stop = new Stopwatch();

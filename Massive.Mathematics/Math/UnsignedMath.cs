@@ -8,10 +8,13 @@ namespace Massive.Mathematics
 {
     public static class UnsignedMath
     {
-        #region Find highest bit
+        #region Base 2 Logarithm
 
+        /// <summary>
+        /// Returns base 2 logarithm of value. For value=0 this returns 0.
+        /// </summary>
         [CLSCompliant(false)]
-        public static int HighestBitSetPosition(byte value)
+        public static int Log2(byte value)
         {
             int p = 0;
             while ((value >>= 1) > 0)
@@ -19,8 +22,11 @@ namespace Massive.Mathematics
             return p;
         }
 
+        /// <summary>
+        /// Returns base 2 logarithm of value. For value=0 this returns 0.
+        /// </summary>
         [CLSCompliant(false)]
-        public static int HighestBitSetPosition(ushort value)
+        public static int Log2(ushort value)
         {
             int p = 0;
             while ((value >>= 1) > 0)
@@ -28,8 +34,11 @@ namespace Massive.Mathematics
             return p;
         }
 
+        /// <summary>
+        /// Returns base 2 logarithm of value. For value=0 this returns 0.
+        /// </summary>
         [CLSCompliant(false)]
-        public static int HighestBitSetPosition(uint value)
+        public static int Log2(uint value)
         {
             int p = 0;
             while ((value >>= 1) > 0)
@@ -37,8 +46,11 @@ namespace Massive.Mathematics
             return p;
         }
 
+        /// <summary>
+        /// Returns base 2 logarithm of value. For value=0 this returns 0.
+        /// </summary>
         [CLSCompliant(false)]
-        public static int HighestBitSetPosition(ulong value)
+        public static int Log2(ulong value)
         {
             int p = 0;
             while ((value >>= 1) > 0)
