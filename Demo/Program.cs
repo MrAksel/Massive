@@ -14,8 +14,8 @@ namespace Demo
     {
         static ulong[] samples = new ulong[] { 0, 1, 2, 5, 10, 100000, int.MaxValue, uint.MaxValue - 1, ulong.MaxValue / 2, ulong.MaxValue };
 
-        static uint iterations = (uint)Math.Pow(10, 3);
-        static uint inner = 1;
+        static uint iterations = (uint)Math.Pow(10, 4);
+        static uint inner = 10;
 
         static void Main(string[] args)
         {

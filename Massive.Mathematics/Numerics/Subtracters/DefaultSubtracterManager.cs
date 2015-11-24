@@ -8,7 +8,7 @@ namespace Massive.Mathematics.Numerics.Subtracters
 {
     class DefaultSubtracterManager : ISubtracterManager
     {
-        private static INaturalSubtracter defaultSubtracter = new ComplementSubtracter();
+        private static INaturalSubtracter defaultSubtracter = new CarrySubtracter();
 
         public INaturalSubtracter GetDefaultSubtracter()
         {

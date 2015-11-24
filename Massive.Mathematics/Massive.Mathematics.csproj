@@ -61,6 +61,7 @@
     <Compile Include="Numerics\Multipliers\LongMultiplier.cs" />
     <Compile Include="Numerics\Multipliers\MultiplicationByAdditionMultiplier.cs" />
     <Compile Include="Numerics\Natural.cs" />
+    <Compile Include="Numerics\Subtracters\CarrySubtracter.cs" />
     <Compile Include="Numerics\Subtracters\ComplementSubtracter.cs" />
     <Compile Include="Numerics\Subtracters\DefaultSubtracterManager.cs" />
     <Compile Include="Numerics\Subtracters\INaturalSubtracter.cs" />
